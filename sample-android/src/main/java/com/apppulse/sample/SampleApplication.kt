@@ -1,6 +1,7 @@
 package com.apppulse.sample
 
 import android.app.Application
+import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.apppulse.android.collector.AppStartCollector
 import com.apppulse.android.frame.FrameMetricsCollector
@@ -25,7 +26,7 @@ class SampleApplication : Application() {
             frameSamplingRate = 0.2
         )
 
-        val appPulseEnabled = !BuildConfig.DEBUG
+        val appPulseEnabled = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) == 0
 
         AppPulse.init(
             config = config,

@@ -1,0 +1,46 @@
+name: Build iOS XCFramework
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  xcframework:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build release XCFramework
+        run: ./gradlew :apppulse-ios:assembleReleaseXCFramework
+
+      - name: Package XCFramework
+        run: |
+          set -euo pipefail
+          cd apppulse-ios/build/XCFrameworks/release
+          zip -r AppPulse.xcframework.zip AppPulse.xcframework
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppPulse-xcframework
+          path: apppulse-ios/build/XCFrameworks/release/AppPulse.xcframework.zip
+
+      - name: Attach XCFramework to tag release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: apppulse-ios/build/XCFrameworks/release/AppPulse.xcframework.zip

@@ -52,6 +52,13 @@ dependencies {
 
 Replace `<version>` with a tagged release such as `0.1.0` or a specific commit hash recognized by JitPack.
 
+## iOS XCFramework Delivery
+
+Each push to `master` (and all `v*` tags) triggers the **Build iOS XCFramework** GitHub Action, which produces `AppPulse.xcframework.zip`:
+
+- Download from the latest workflow run artifacts for ad-hoc builds.
+- When a tag like `v0.1.0` is pushed, the workflow also attaches the zip to the GitHub Release so iOS apps can drop the XCFramework straight into Xcode.
+
 ## Getting Started (Android)
 
 1. Initialize AppPulse inside your `Application` class and gate it behind a boolean so you can toggle with build flavors or remote config:

@@ -44,6 +44,13 @@ dependencies {
 
 `<버전>`에는 `0.1.0` 같은 태그 이름이나 특정 커밋 해시를 입력합니다.
 
+## iOS XCFramework 배포
+
+`master` 브랜치에 푸시하거나 `v*` 태그를 등록하면 GitHub Actions 워크플로( **Build iOS XCFramework** )가 자동으로 `AppPulse.xcframework`를 빌드합니다.
+
+- 최신 커밋이 필요한 경우 Actions 실행 페이지에서 `AppPulse.xcframework.zip` 아티팩트를 내려받아 바로 Xcode에 추가할 수 있습니다.
+- 태그 릴리스(`v0.1.0` 등)를 만들면 동일한 zip 파일이 GitHub Release 자산으로 첨부되어, iOS 팀이 릴리스 페이지에서 안정된 버전을 다운로드할 수 있습니다.
+
 ## Android 연동 방법
 
 1. `Application`에서 AppPulse 초기화 (빌드 타입/원격 설정으로 토글할 수 있도록 불리언 값을 함께 사용):
