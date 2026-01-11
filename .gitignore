@@ -1,0 +1,41 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Build outputs
+**/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Gradle files
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Android Studio
+.idea/*
+!.idea/vcs.xml
+*.iws
+
+# macOS
+.DS_Store
+
+# Local configuration
+local.properties
+
+# Claude Code
+.claude/
