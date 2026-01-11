@@ -27,6 +27,31 @@ Unit tests for the shared logic:
 ./gradlew :apppulse-core:check
 ```
 
+## Gradle Dependency (JitPack)
+
+If you prefer to consume the SDK as an external dependency, publish tags on GitHub and add the JitPack repository:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+
+Then depend on the modules you need (Android apps typically only need `apppulse-android`):
+
+```kotlin
+dependencies {
+    implementation("com.github.kseongbin:apppulse-core:<version>")
+    implementation("com.github.kseongbin:apppulse-android:<version>")
+}
+```
+
+Replace `<version>` with a tagged release such as `0.1.0` or a specific commit hash recognized by JitPack.
+
 ## Getting Started (Android)
 
 1. Initialize AppPulse inside your `Application` class and gate it behind a boolean so you can toggle with build flavors or remote config:

@@ -1,7 +1,10 @@
+import org.gradle.api.publish.maven.MavenPublication
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 kotlin {
@@ -49,5 +52,30 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        if (name == "kotlinMultiplatform") {
+            artifactId = "apppulse-core-mpp"
+        }
+        if (name == "androidRelease") {
+            artifactId = "apppulse-core"
+        }
+        pom {
+            name.set("AppPulse Core")
+            description.set("KMP shared runtime for the AppPulse performance SDK")
+            url.set("https://github.com/kseongbin/AppPulsse")
+            licenses {
+                license {
+                    name.set("MIT License")
+                    url.set("https://opensource.org/licenses/MIT")
+                }
+            }
+            scm {
+                url.set("https://github.com/kseongbin/AppPulsse")
+            }
+        }
     }
 }

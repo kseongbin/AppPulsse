@@ -19,6 +19,31 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
 
 공용 로직 테스트는 `./gradlew :apppulse-core:check` 로 실행합니다. (로컬 환경에 Xcode/Command Line Tools가 설치되어 있어야 iOS 타깃 컴파일이 완료됩니다.)
 
+## Gradle 외부 의존성 (JitPack)
+
+GitHub에 태그를 만든 뒤, 앱 프로젝트의 `dependencyResolutionManagement` 또는 상위 `repositories` 블록에 JitPack을 추가하면 `implementation`으로 바로 가져올 수 있습니다.
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+
+필요한 모듈을 의존성으로 선언하세요. Android 앱은 보통 `apppulse-android` 하나면 충분하지만, 공용 로직만 별도로 쓰고 싶다면 `apppulse-core`를 추가하면 됩니다.
+
+```kotlin
+dependencies {
+    implementation("com.github.kseongbin:apppulse-core:<버전>")
+    implementation("com.github.kseongbin:apppulse-android:<버전>")
+}
+```
+
+`<버전>`에는 `0.1.0` 같은 태그 이름이나 특정 커밋 해시를 입력합니다.
+
 ## Android 연동 방법
 
 1. `Application`에서 AppPulse 초기화 (빌드 타입/원격 설정으로 토글할 수 있도록 불리언 값을 함께 사용):

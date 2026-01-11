@@ -7,3 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.compose) apply false
 }
+
+allprojects {
+    group = (property("GROUP") as String)
+    version = (property("VERSION_NAME") as String)
+}
