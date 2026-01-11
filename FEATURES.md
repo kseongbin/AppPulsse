@@ -11,6 +11,23 @@
 - **백그라운드 배치 워커**: 코루틴 기반 `BatchWorker`로 일정량 또는 간격마다 묶음 전송. 모든 작업은 `runCatching`으로 감싸 앱 크래시를 방지.
 - **플랫폼 추상화**: `AppPulseClock`, `UuidGenerator`로 시간을 주입하거나 테스트 더블을 연결 가능.
 
+```kotlin
+val config = AppPulseConfig(
+    apiKey = "prod-key",
+    endpoint = "https://collector.yourcorp.com",
+    batchSize = 20,
+    batchIntervalMs = 10_000
+)
+
+AppPulse.init(config = config, transport = HttpTransport(), enabled = !BuildConfig.DEBUG)
+AppPulse.setUserId("user-123")
+AppPulse.trackEvent(EventType.CUSTOM, Attributes(mapOf("action" to "login")))
+val spanId = AppPulse.startSpan("feed_load")
+// ... work ...
+AppPulse.endSpan(spanId, Attributes(mapOf("status" to "ok")))
+AppPulse.flush()
+```
+
 ## Android 모듈 (:apppulse-android)
 
 - **AppStartCollector**: `Application`과 `ActivityLifecycleCallbacks`를 활용해 콜드/웜 스타트, 첫 화면 렌더 시간을 측정.
@@ -18,12 +35,59 @@
 - **NetworkInterceptor**: OkHttp 네트워크 요청의 왕복 시간·상태 코드를 `EventType.NETWORK`로 전송하도록 돕는 스켈레톤.
 - **Transport 예시**: 샘플 앱에서 콘솔 전송기를 제공해 배치 전송 과정을 확인 가능.
 
+```kotlin
+class SampleApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        val enabled = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) == 0
+        val config = AppPulseConfig(apiKey = "demo", endpoint = "https://collector.example.com")
+        AppPulse.init(config = config, transport = ConsoleTransport(), enabled = enabled)
+        if (enabled) {
+            AppStartCollector(this).register()
+            FrameMetricsCollector(this, enabled = config.frameSamplingRate > 0).register()
+        }
+    }
+}
+
+Interceptor { chain ->
+    val start = System.currentTimeMillis()
+    val response = chain.proceed(chain.request())
+    val duration = System.currentTimeMillis() - start
+    AppPulse.trackEvent(
+        EventType.NETWORK,
+        Attributes(mapOf(
+            "url" to chain.request().url.toString(),
+            "status" to response.code.toString(),
+            "durationMs" to duration.toString()
+        ))
+    )
+    response
+}
+```
+
 ## iOS 모듈 (:apppulse-ios)
 
 - **AppStartCollector**: `UIApplication` 생명주기를 감지해 앱 시작/첫 화면 이벤트를 기록.
 - **NetworkInstrumentation**: `URLSession`을 감싸 요청/응답 지표를 Event로 전송하는 스켈레톤.
 - **FrameCollector**: `CADisplayLink` 기반으로 초기 구간의 프레임 요약을 수집하는 스켈레톤(기본 OFF).
 - **프레임워크 패키징**: `AppPulse.framework`/`AppPulse.xcframework`를 빌드하여 Xcode에서 임포트 가능하며 GitHub Actions가 `AppPulse.xcframework.zip`을 자동 배포.
+
+```swift
+import AppPulse
+
+func application(_ application: UIApplication,
+                 didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    let config = AppPulseConfig(apiKey: "demo", endpoint: "https://collector.example.com")
+    let enabled = RemoteConfig.shared.isAppPulseEnabled
+    AppPulse.shared.init(config: config, transport: IOSConsoleTransport(), enabled: enabled)
+    if enabled {
+        IOSAppStartCollector().start()
+        IOSFrameCollector().start()
+        NetworkInstrumentation().instrument(session: URLSession.shared)
+    }
+    return true
+}
+```
 
 ## 구성 옵션
 
@@ -39,5 +103,3 @@
 - `EventQueue`: SQLDelight, 파일 기반 큐 등 영속 저장소로 교체 가능.
 - `Sampler`, `RateLimiter`, `RetryPolicy`: 정책 커스터마이즈.
 - `Clock`, `UuidGenerator`: 테스트·디버깅을 위한 결정적 구현 주입.
-
-> 상세 초기화/코드 예시는 README/README_ko의 “Getting Started” 절을 참고하세요.
