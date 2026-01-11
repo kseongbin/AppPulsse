@@ -1,6 +1,6 @@
 # AppPulse SDK Skeleton
 
-[한국어 버전 README_ko.md](README_ko.md)
+[한국어 버전 README_ko.md](README_ko.md) · [Feature Reference](FEATURES.md)
 
 Lightweight Kotlin Multiplatform performance telemetry SDK that targets Android and iOS with shared core logic and optional platform collectors.
 
@@ -11,6 +11,8 @@ Lightweight Kotlin Multiplatform performance telemetry SDK that targets Android 
 - `:apppulse-ios` – iOS helper framework exposing collectors implemented in `iosMain` and packaged as `AppPulse.framework`.
 - `:sample-android` – Compose sample app wiring the SDK and demonstrating a launch metric being queued.
 - `:sample-ios` – Documentation stub for integrating the framework into an Xcode project.
+
+See [FEATURES.md](FEATURES.md) for a detailed description of the capabilities shipped in each module.
 
 ## Building
 

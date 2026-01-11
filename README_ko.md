@@ -1,4 +1,4 @@
-# AppPulse SDK 개요
+# AppPulse SDK 개요 · [기능 문서](FEATURES.md)
 
 AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multiplatform 기반의 성능 측정 SDK 뼈대입니다. 앱에 부담을 주지 않는 가벼운 수집기를 목표로 하며, 기본 제공 모듈은 다음과 같습니다.
 
@@ -7,6 +7,8 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
 - `:apppulse-ios` – iOS 앱 시작, URLSession 네트워크 래퍼, CADisplayLink 기반 프레임 요약 스켈레톤을 Framework로 내보냅니다.
 - `:sample-android` – Compose 기반 데모 앱으로 SDK 초기화와 이벤트 트래킹 흐름을 확인할 수 있습니다.
 - `:sample-ios` – Gradle에서 생성한 Framework를 Xcode 프로젝트에 붙이는 방법을 문서로 안내합니다.
+
+모듈별 제공 기능은 [FEATURES.md](FEATURES.md)에서 세부 항목을 확인하세요.
 
 ## 빌드 및 테스트
 
