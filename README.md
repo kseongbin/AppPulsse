@@ -29,7 +29,7 @@ Unit tests for the shared logic:
 
 ## Getting Started (Android)
 
-1. Initialize AppPulse inside your `Application` class:
+1. Initialize AppPulse inside your `Application` class and gate it behind a boolean so you can toggle with build flavors or remote config:
    ```kotlin
    class SampleApplication : Application() {
        override fun onCreate() {
@@ -38,15 +38,20 @@ Unit tests for the shared logic:
                apiKey = "demo-key",
                endpoint = "https://collector.example.com"
            )
-           AppPulse.init(config, transport = MyTransport())
-           AppPulse.setUserId("user-123")
+           val isAppPulseEnabled = !BuildConfig.DEBUG
+           AppPulse.init(config, transport = MyTransport(), enabled = isAppPulseEnabled)
+           if (isAppPulseEnabled) {
+               AppPulse.setUserId("user-123")
+           }
        }
    }
    ```
-2. Register collectors:
+2. Register collectors only when `isAppPulseEnabled` is true:
    ```kotlin
-   AppStartCollector(this).register()
-   FrameMetricsCollector(this, enabled = true).register()
+   if (isAppPulseEnabled) {
+       AppStartCollector(this).register()
+       FrameMetricsCollector(this, enabled = true).register()
+   }
    ```
 3. Optionally add the `NetworkInterceptor` to your OkHttp client for network sampling.
 4. Track custom events anywhere:
@@ -65,12 +70,15 @@ Unit tests for the shared logic:
 
 1. Build the framework: `./gradlew :apppulse-ios:assemble`.
 2. Add the generated `AppPulse.framework` to Xcode.
-3. In `AppDelegate`, initialize and wire collectors:
+3. In `AppDelegate`, initialize and wire collectors with the same boolean flag so each app can decide whether AppPulse should run:
    ```swift
    let config = AppPulseConfig(apiKey: "demo", endpoint: "https://collector.example.com")
-   AppPulse.shared.init(config: config, transport: IOSConsoleTransport())
-   IOSAppStartCollector().start()
-   IOSFrameCollector().start()
+   let isAppPulseEnabled = RemoteConfig.shared.isAppPulseEnabled
+   AppPulse.shared.init(config: config, transport: IOSConsoleTransport(), enabled: isAppPulseEnabled)
+   if isAppPulseEnabled {
+       IOSAppStartCollector().start()
+       IOSFrameCollector().start()
+   }
    ```
 4. Wrap `URLSession` via `NetworkInstrumentation.instrument(session:)` to capture networking metrics.
 
@@ -78,7 +86,7 @@ Unit tests for the shared logic:
 
 | Function | Purpose |
 | --- | --- |
-| `AppPulse.init(config, transport, …)` | Configure SDK and background worker. |
+| `AppPulse.init(config, transport, …, enabled)` | Configure SDK and background worker (`enabled = false` short-circuits setup). |
 | `AppPulse.setUserId(id)` | Associate metrics with a logical user. |
 | `AppPulse.trackEvent(type, attributes, metric)` | Queue an event respecting sampling and rate limits. |
 | `AppPulse.startSpan(name)` / `endSpan(id)` | Simple span API for manual instrumentation. |

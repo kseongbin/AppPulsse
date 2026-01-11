@@ -7,10 +7,14 @@ This directory documents how to integrate the Kotlin Multiplatform AppPulse SDK 
    ./gradlew :apppulse-ios:assemble
    ```
 2. Drag the generated `AppPulse.framework` from `apppulse-ios/build/bin/ios*/releaseFramework/` into your Xcode project.
-3. During `application(_:didFinishLaunchingWithOptions:)` initialize AppPulse:
+3. During `application(_:didFinishLaunchingWithOptions:)` initialize AppPulse with a boolean flag so you can turn it on/off per build flavor or remote config:
    ```swift
-   AppPulse.shared.init(config: AppPulseConfig(...), transport: MyTransport())
-   IOSAppStartCollector().start()
+   let isAppPulseEnabled = FeatureFlags.isAppPulseEnabled
+   let config = AppPulseConfig(apiKey: "demo", endpoint: "https://collector.example.com")
+   AppPulse.shared.init(config: config, transport: IOSConsoleTransport(), enabled: isAppPulseEnabled)
+   if isAppPulseEnabled {
+       IOSAppStartCollector().start()
+   }
    ```
 4. Optionally wire `NetworkInstrumentation` to your `URLSession` delegate and `IOSFrameCollector` during startup to capture frame summaries around the first screen render.
 

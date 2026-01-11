@@ -21,7 +21,7 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
 
 ## Android 연동 방법
 
-1. `Application`에서 AppPulse 초기화:
+1. `Application`에서 AppPulse 초기화 (빌드 타입/원격 설정으로 토글할 수 있도록 불리언 값을 함께 사용):
    ```kotlin
    class SampleApplication : Application() {
        override fun onCreate() {
@@ -30,15 +30,20 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
                apiKey = "demo-key",
                endpoint = "https://collector.example.com"
            )
-           AppPulse.init(config, transport = MyTransport())
-           AppPulse.setUserId("user-123")
+           val isAppPulseEnabled = !BuildConfig.DEBUG
+           AppPulse.init(config, transport = MyTransport(), enabled = isAppPulseEnabled)
+           if (isAppPulseEnabled) {
+               AppPulse.setUserId("user-123")
+           }
        }
    }
    ```
-2. 수집기 등록:
+2. 동일한 불리언(`isAppPulseEnabled`)을 재활용해 수집기를 조건부로 등록합니다.
    ```kotlin
-   AppStartCollector(this).register()
-   FrameMetricsCollector(this, enabled = true).register()
+   if (isAppPulseEnabled) {
+       AppStartCollector(this).register()
+       FrameMetricsCollector(this, enabled = true).register()
+   }
    ```
 3. OkHttp를 사용할 경우 `NetworkInterceptor`를 클라이언트에 추가합니다.
 4. 원하는 위치에서 사용자 정의 이벤트를 기록합니다.
@@ -54,12 +59,15 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
 
 1. `./gradlew :apppulse-ios:assemble` 로 Framework를 빌드합니다.
 2. `apppulse-ios/build/bin/ios*/releaseFramework/AppPulse.framework` 를 Xcode 프로젝트에 추가합니다.
-3. `AppDelegate` 에서 초기화 및 수집기를 연결합니다.
+3. `AppDelegate` 에서도 동일한 불리언 플래그로 초기화/수집기 연결 여부를 제어합니다.
    ```swift
    let config = AppPulseConfig(apiKey: "demo", endpoint: "https://collector.example.com")
-   AppPulse.shared.init(config: config, transport: IOSConsoleTransport())
-   IOSAppStartCollector().start()
-   IOSFrameCollector().start()
+   let isAppPulseEnabled = RemoteConfig.shared.isAppPulseEnabled
+   AppPulse.shared.init(config: config, transport: IOSConsoleTransport(), enabled: isAppPulseEnabled)
+   if isAppPulseEnabled {
+       IOSAppStartCollector().start()
+       IOSFrameCollector().start()
+   }
    ```
 4. 네트워크 계측이 필요하면 `NetworkInstrumentation.instrument(session:)` 으로 `URLSession` 에 훅을 달 수 있습니다.
 
@@ -67,7 +75,7 @@ AppPulse는 Android와 iOS에서 공용으로 사용할 수 있는 Kotlin Multip
 
 | 함수 | 설명 |
 | --- | --- |
-| `AppPulse.init(config, transport, …)` | SDK 구성 및 배치 워커 시작 |
+| `AppPulse.init(config, transport, …, enabled)` | SDK 구성 및 배치 워커 시작 (`enabled=false`면 내부 로직을 건너뜀) |
 | `AppPulse.setUserId(id)` | 사용자 식별자 연결 |
 | `AppPulse.trackEvent(type, attributes, metric)` | 샘플링/레이트리밋을 거쳐 이벤트 큐에 저장 |
 | `AppPulse.startSpan(name)` / `endSpan(id)` | 수동 Span 계측 |

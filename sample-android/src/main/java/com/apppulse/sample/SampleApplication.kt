@@ -25,16 +25,28 @@ class SampleApplication : Application() {
             frameSamplingRate = 0.2
         )
 
-        AppPulse.init(config = config, transport = ConsoleTransport())
-        AppPulse.setUserId("sample-user")
+        val appPulseEnabled = !BuildConfig.DEBUG
 
-        startCollector = AppStartCollector(this)
-        startCollector.register()
+        AppPulse.init(
+            config = config,
+            transport = ConsoleTransport(),
+            enabled = appPulseEnabled
+        )
 
-        frameCollector = FrameMetricsCollector(this, enabled = config.frameSamplingRate > 0.0)
-        frameCollector.register()
+        if (appPulseEnabled) {
+            AppPulse.setUserId("sample-user")
 
-        Log.d("SampleApp", "AppPulse initialized; queue size=${AppPulse.queueSize()}")
+            startCollector = AppStartCollector(this)
+            startCollector.register()
+
+            frameCollector = FrameMetricsCollector(this, enabled = config.frameSamplingRate > 0.0)
+            frameCollector.register()
+        }
+
+        Log.d(
+            "SampleApp",
+            "AppPulse enabled=$appPulseEnabled queue size=${AppPulse.queueSize()}"
+        )
     }
 
     private class ConsoleTransport : Transport {

@@ -54,9 +54,15 @@ object AppPulse {
         rateLimiter: RateLimiter = SessionRateLimiter(config.maxEventsPerSession),
         retryPolicy: RetryPolicy = ExponentialBackoffRetryPolicy(),
         clock: AppPulseClock = SystemClock,
-        uuidGenerator: UuidGenerator = DefaultUuidGenerator()
+        uuidGenerator: UuidGenerator = DefaultUuidGenerator(),
+        enabled: Boolean = true
     ) {
         runCatching {
+            shutdownWorker()
+            if (!enabled) {
+                initialized = false
+                return
+            }
             this.config = config
             this.transport = transport
             this.queue = queue
@@ -144,6 +150,12 @@ object AppPulse {
     }
 
     fun queueSize(): Int = runCatching { queue.size() }.getOrDefault(0)
+
+    private fun shutdownWorker() {
+        if (::worker.isInitialized) {
+            worker.stop()
+        }
+    }
 
     private fun spanDurationMs(span: Span): Long {
         val end = clock.now()
