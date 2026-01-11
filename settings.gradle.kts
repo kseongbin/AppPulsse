@@ -20,5 +20,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AppPulse"
-include(":app")
-include(":apppulse-sdk")
+include(
+    ":apppulse-core",
+    ":apppulse-android",
+    ":apppulse-ios",
+    ":sample-android",
+    ":sample-ios"
+)
