@@ -1,5 +1,7 @@
 # AppPulse SDK Skeleton
 
+[한국어 버전 README_ko.md](README_ko.md)
+
 Lightweight Kotlin Multiplatform performance telemetry SDK that targets Android and iOS with shared core logic and optional platform collectors.
 
 ## Modules
